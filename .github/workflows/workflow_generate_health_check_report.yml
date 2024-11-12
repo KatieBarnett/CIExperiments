@@ -1,0 +1,72 @@
+name: Generate Tech Debt Health Check Report
+#description: 'Generate a report into progress of tech debt initiatives'
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+jobs:
+  generate-tech-debt-health-check-report:
+    runs-on: [ubuntu-latest]
+    steps:
+#      uses: webfactory/ssh-agent@v0.9.0
+#        with:
+#          ssh-private-key: |
+#            ${{ secrets.DEPLOY_KEY_A868_RUNWAY_COMPONENTS_ANDROID }}
+
+      - name: 🛒 Checkout repo
+        uses: actions/checkout@v4
+        with:
+          path: app
+          submodules: 'recursive'
+
+      - name: Run tech debt health check script
+        shell: bash
+        working-directory: app
+        run: |
+          ./.github/scripts/health_check.sh
+
+      - name: Check1
+        shell: bash
+        run: |
+          pwd
+          ls
+
+      - name: 🛒 Checkout wiki
+        uses: actions/checkout@v4
+        with:
+          path: wiki
+          repository: ${{github.repository}}.wiki
+
+      - name: Check2
+        shell: bash
+        run: |
+          pwd
+          echo "root"
+          ls
+          echo "app"
+          ls app/
+          echo "wiki"
+          ls wiki/
+
+      - name: Copy health_check.md to wiki
+        run: cp app/health_check.md wiki/
+
+      - name: Commit files
+        shell: bash
+        run: |
+          cd wiki
+          git config --global user.email "${GITHUB_USER}@users.noreply.github.com"
+          git config --global user.name "${GITHUB_USER}"
+          git add .
+          git commit -m "Updated the tech debt health check report"
+        env:
+          GITHUB_USER: ${{ github.actor }}
+
+      - name: Push changes to wiki repo
+        uses: ad-m/github-push-action@master
+        with:
+          repository: ${{github.repository}}.wiki    # specify the wiki repo and push the update..
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: master
+          directory: wiki
