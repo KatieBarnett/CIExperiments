@@ -20,13 +20,26 @@ jobs:
           path: app
           submodules: 'recursive'
 
+      - name: Set report name based on branch
+        working-directory: app
+        run: |
+          branch_name="echo $(git branch --show-current)"
+          echo "## Current branch: $branch_name"
+          if [[ $branch_name == "android/release/"* ]]; then
+            echo "It's there!"
+            echo "REPORT_NAME=Health check report - $branch_name" | sed -r 's/android\/release\///g' >> $GITHUB_ENV
+          else
+            echo "REPORT_NAME=Health check report - $branch_name" >> $GITHUB_ENV
+          fi
+          echo "## $REPORT_NAME"
+
       - name: Run tech debt health check script
         shell: bash
         working-directory: app
         run: |
           ./.github/scripts/tech_debt_health_check.sh
         env:
-          FILENAME: 'Tech Debt Health Check - master.md'
+          FILENAME: ${{ github.REPORT_NAME }}
 
       - name: 🛒 Checkout wiki
         uses: actions/checkout@v4
@@ -35,7 +48,7 @@ jobs:
           repository: ${{github.repository}}.wiki
 
       - name: Copy health check file to wiki
-        run: mkdir -p 'wiki/Health Checks' && cp 'app/Tech Debt Health Check - master.md' 'wiki/Health Checks/Tech Debt Health Check - master.md'
+        run: mkdir -p 'wiki/Health Checks' && cp 'app/${{ github.REPORT_NAME }}' 'wiki/Health Checks/${{ github.REPORT_NAME }}'
 
       - name: Commit files
         shell: bash
@@ -61,4 +74,4 @@ jobs:
         if: always()
         with:
           name: tech-debt-health-check-report
-          path: './app/Tech Debt Health Check - master.md'
+          path: './app/${{ github.REPORT_NAME }}'
