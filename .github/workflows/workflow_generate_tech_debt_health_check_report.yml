@@ -24,13 +24,9 @@ jobs:
         shell: bash
         working-directory: app
         run: |
-          ./.github/scripts/health_check.sh
-
-      - name: Check1
-        shell: bash
-        run: |
-          pwd
-          ls
+          ./.github/scripts/tech_debt_health_check.sh
+        env:
+          FILENAME: 'Tech Debt Health Check - master.md'
 
       - name: 🛒 Checkout wiki
         uses: actions/checkout@v4
@@ -38,19 +34,8 @@ jobs:
           path: wiki
           repository: ${{github.repository}}.wiki
 
-      - name: Check2
-        shell: bash
-        run: |
-          pwd
-          echo "root"
-          ls
-          echo "app"
-          ls app/
-          echo "wiki"
-          ls wiki/
-
-      - name: Copy health_check.md to wiki
-        run: cp app/health_check.md wiki/
+      - name: Copy health check file to wiki
+        run: mkdir -p 'wiki/Health Checks' && cp 'app/Tech Debt Health Check - master.md' 'wiki/Health Checks/Tech Debt Health Check - master.md'
 
       - name: Commit files
         shell: bash
@@ -59,7 +44,7 @@ jobs:
           git config --global user.email "${GITHUB_USER}@users.noreply.github.com"
           git config --global user.name "${GITHUB_USER}"
           git add .
-          git commit -m "Updated the tech debt health check report"
+          git commit -m "Updated the tech debt health check report" --allow-empty
         env:
           GITHUB_USER: ${{ github.actor }}
 
@@ -70,3 +55,10 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           branch: master
           directory: wiki
+
+      - name: 📤 Upload health check report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tech-debt-health-check-report
+          path: './app/Tech Debt Health Check - master.md'

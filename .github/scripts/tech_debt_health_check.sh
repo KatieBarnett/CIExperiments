@@ -6,22 +6,28 @@
 # download_seed "https://url/to/download" "output_filename"
 #
 exit_code=0
+
+if [[ -z ${FILENAME} ]]; then
+    echo "Missing FILENAME variable"
+    exit 1
+fi
+
 function check_usages() {
     local readonly DESCRIPTION=$1
     local readonly SEARCH_STRING=$2
     local readonly STARTING_POINT=$3
     COUNT="$(grep -ri "${SEARCH_STRING}" * | wc -l | tr -d ' ')"
-    echo "Usages of ${DESCRIPTION}: ${COUNT}"
     DIFFERENCE=$(($STARTING_POINT - $COUNT))
-    PERCENTAGE_REMAINING=$(($DIFFERENCE/ $STARTING_POINT * 100))
-    echo "|$DESCRIPTION|$STARTING_POINT|$COUNT|![$PERCENTAGE_REMAINING%](https://progress-bar.xyz/$PERCENTAGE_REMAINING?title=Completed)|" >> health_check.md
+    PERCENTAGE_REMAINING=$(echo "result = $DIFFERENCE / $STARTING_POINT * 100; scale=0; result / 1" | bc -l)
+    echo "Usages of ${DESCRIPTION}: ${COUNT} (${PERCENTAGE_REMAINING}%)"
+    echo "|$DESCRIPTION|$STARTING_POINT|$COUNT|![$PERCENTAGE_REMAINING%](https://progress-bar.xyz/$PERCENTAGE_REMAINING?title=Completed)|" >> "$FILENAME"
     return 0
 }
 
-rm -f health_check.md
+rm -f "$FILENAME"
 
-echo "| Migration | Starting Usage | Current Usages | Status |" >> health_check.md
-echo "| --- | --- | --- | --- |" >> health_check.md
+echo "| Migration | Starting Usage | Current Usages | Status |" >> "$FILENAME"
+echo "| --- | --- | --- | --- |" >> "$FILENAME"
 
 echo "Checking Health..."
 echo -e "=============================\n"
