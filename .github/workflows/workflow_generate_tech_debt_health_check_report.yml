@@ -4,6 +4,7 @@ name: Generate Tech Debt Health Check Report
 on:
   workflow_call:
   workflow_dispatch:
+  push:
 
 jobs:
   generate-tech-debt-health-check-report:
@@ -25,19 +26,7 @@ jobs:
         shell: bash
         working-directory: app
         run: |
-          branch_name="$(git branch --show-current)"
-          echo "## Current branch: $branch_name"
-          if [ $branch_name == "android/release/" ]; then
-            echo "In a release branch"
-            echo "In a release branch again"
-            echo "$report_name_suffix='abcd'"
-            echo "Report name suffix: $report_name_suffix"
-            echo "$report_name=Health check report - $report_name_suffix.md" >> $GITHUB_ENV
-          else
-            report_name="Health check report - $branch_name.md"
-            echo "report_name=$report_name" >> $GITHUB_OUTPUT
-          fi
-          echo "## report name is: $report_name"
+          ./.github/scripts/tech_debt_health_check_get_report_name.sh
 
       - name: Run tech debt health check script
         shell: bash
@@ -45,7 +34,7 @@ jobs:
         run: |
           ./.github/scripts/tech_debt_health_check.sh
         env:
-          FILENAME: ${{ steps.get_report_name.outputs.report_name }}
+          FILENAME: ${{ env.REPORT_NAME }}
 
       - name: 🛒 Checkout wiki
         uses: actions/checkout@v4
