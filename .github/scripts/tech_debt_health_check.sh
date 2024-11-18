@@ -2,9 +2,6 @@
 #
 # Outputs health metrics of various tech debt migration efforts
 #
-# Usage:
-# download_seed "https://url/to/download" "output_filename"
-#
 exit_code=0
 
 if [[ -z ${FILENAME} ]]; then
@@ -25,6 +22,8 @@ function check_usages() {
 }
 
 rm -f "$FILENAME"
+
+echo "Saving health check in $FILENAME"
 
 echo "| Migration | Starting Usage | Current Usages | Status |" >> "$FILENAME"
 echo "| --- | --- | --- | --- |" >> "$FILENAME"
