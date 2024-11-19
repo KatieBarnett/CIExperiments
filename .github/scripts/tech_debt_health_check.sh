@@ -54,6 +54,10 @@ check_usages "Kotest test cases" "^import io.kotest.core.test.TestCase" 155
 
 echo -e "\n\n"
 
+echo -e "=============================\n"
+
+echo -e "\n\n" >> "$FILENAME"
+
 echo "Checking lines of code..."
 echo "| File Type | Lines of code |" >> "$FILENAME"
 echo "| --- | --- |" >> "$FILENAME"
