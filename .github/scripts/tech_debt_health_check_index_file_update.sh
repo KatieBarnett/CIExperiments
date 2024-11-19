@@ -20,7 +20,7 @@ else
 fi
 
 #Append new file link
-echo -e "- [[$FILENAME_WITHOUT_EXTENSION]] $(date +'%Y-%m-%d %H:%M:%S')\n" >> "$INDEX_FILENAME"
+echo -e "- [[$FILENAME_WITHOUT_EXTENSION]] - Updated: $(date +'%Y-%m-%d %H:%M:%S')\n" >> "$INDEX_FILENAME"
 
 echo -e "\nDone."
 exit $exit_code
