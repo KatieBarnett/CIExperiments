@@ -21,6 +21,14 @@ function check_usages() {
     return 0
 }
 
+function count_lines() {
+    local readonly DESCRIPTION=$1
+    local readonly EXTENSION=$2
+    LINE_COUNT=$(find . -name "*.$EXTENSION" -type f | xargs wc -l | awk '{ sum += $1 } END { print sum }')
+    echo "Lines of code in $DESCRIPTION files: ${LINE_COUNT}"
+    echo "|$DESCRIPTION|$LINE_COUNT|" >> "$FILENAME"
+}
+
 rm -f "$FILENAME"
 
 echo "Saving health check in $FILENAME"
@@ -43,6 +51,16 @@ check_usages "Color" "^import androidx.compose.ui.graphics.Color" 63
 
 echo "Checking kotest..."
 check_usages "Kotest test cases" "^import io.kotest.core.test.TestCase" 155
+
+echo -e "\n\n"
+
+echo "Checking lines of code..."
+echo "| File Type | Lines of code |" >> "$FILENAME"
+echo "| --- | --- |" >> "$FILENAME"
+
+count_lines "Kotlin" "kt"
+count_lines "Java" "java"
+count_lines "XML" "xml"
 
 echo -e "\nDone."
 exit $exit_code
