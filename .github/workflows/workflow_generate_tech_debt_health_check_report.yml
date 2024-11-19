@@ -34,7 +34,7 @@ jobs:
         run: |
           ./.github/scripts/tech_debt_health_check.sh
         env:
-          FILENAME: ${{ env.REPORT_NAME }}
+          FILENAME: ${{ steps.get_report_name.outputs.report_name }}
 
       - name: 🛒 Checkout wiki
         uses: actions/checkout@v4
